@@ -1,0 +1,14 @@
+# Qt generate file types
+
+build-*/*
+build-*
+*-build-*
+QSudokuSolver/*.pro.user
+QSudokuSolver/*.pro.user.*
+QSudokuSolver/*.moc
+QSudokuSolver/*.bin
+QSudokuSolver/moc_*.cpp
+QSudokuSolver/qrc_*.cpp
+QSudokuSolver/ui_*.h
+QSudokuSolver/Makefile*
+QSudokuSolver/*-build-*
