@@ -73,13 +73,13 @@ void QSudouBox::Released()
             this->setFrameShape(QFrame::StyledPanel);
             this->setFrameShadow(QFrame::Plain);
             this->setStyleSheet("background-color:");
-            this->m_BoxType = BOXTYPE_BLANK;
-        }
-        else{
-            this->setStyleSheet("background-color: orchid");
-            this->m_BoxType = BOXTYPE_PUZZLE;
-        }
+        this->m_BoxType = BOXTYPE_BLANK;
     }
+    else{
+        this->setStyleSheet("background-color: orchid");
+        this->m_BoxType = BOXTYPE_PUZZLE;
+    }
+}
 
     parent_ptr->GetUI()->SetValueSpinBox->setVisible(false);
 }

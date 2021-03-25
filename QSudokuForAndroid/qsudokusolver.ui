@@ -3535,7 +3535,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>0</y>
+     <y>10</y>
      <width>50</width>
      <height>40</height>
     </rect>
@@ -3547,6 +3547,12 @@
      <weight>75</weight>
      <bold>true</bold>
     </font>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
    <property name="maximum">
     <number>9</number>

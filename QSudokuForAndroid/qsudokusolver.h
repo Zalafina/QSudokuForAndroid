@@ -45,6 +45,9 @@ public slots:
     void PuzzlesInitCompleteProc(void);
     void boxPressed(QString boxname);
     void boxReleased(QString boxname);
+    void onSpinBoxValueChanged(int value);
+    void StepUpTimeOut();
+    void StepDownTimeOut();
 
 protected:
     bool event(QEvent *event);
@@ -88,6 +91,8 @@ public:
     bool m_CustomPuzzleMaked;
     int m_SudokuMode;
     QString m_CurrentBoxName;
+    QTimer *m_stepup_timer;
+    QTimer *m_stepdown_timer;
 };
 
 #endif // QSUDOKUSOLVER_H

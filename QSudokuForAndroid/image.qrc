@@ -1,5 +1,6 @@
-<RCC>
+﻿<RCC>
     <qresource prefix="/">
         <file alias="AppIcon.ico">image/my_icon.ico</file>
+        <file alias="AndroidApp_icon.png">image/sudoku_icon.png</file>
     </qresource>
 </RCC>

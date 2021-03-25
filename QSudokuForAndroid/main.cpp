@@ -10,12 +10,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     QApplication::setStyle(QStyleFactory::create("Fusion"));
     QSudokuSolver w;
-
-    qDebug() << "Qt::GestureFlags()" << Qt::GestureFlags();
-    w.grabGesture(Qt::PanGesture);
     w.grabGesture(Qt::PinchGesture);
-    w.grabGesture(Qt::SwipeGesture);
-
     w.show();
 
     return a.exec();

@@ -1,7 +1,10 @@
 ﻿#include <QDebug>
+#include <QLineEdit>
 #include <string.h>
 #include "qsudokusolver.h"
 #include "ui_qsudokusolver.h"
+
+static const int GESTURE_TIMEOUT = 100;
 
 QSudokuSolver::QSudokuSolver(QWidget *parent) :
     QWidget(parent),
@@ -11,7 +14,8 @@ QSudokuSolver::QSudokuSolver(QWidget *parent) :
     m_Puzzles(this),
     m_CustomPuzzleMaked(false),
     m_SudokuMode(SUDOKUMODE_PLAY),
-    m_CurrentBoxName()
+    m_stepup_timer(Q_NULLPTR),
+    m_stepdown_timer(Q_NULLPTR)
 {
     ui->setupUi(this);
 
@@ -19,8 +23,8 @@ QSudokuSolver::QSudokuSolver(QWidget *parent) :
     MakeButtonEnable();
     SolveButtonEnable();
     ui->ClearButton->setStyleSheet("color: red");
+	ui->SetValueSpinBox->setStyleSheet("background-color: mistyrose");
     ui->SetValueSpinBox->setVisible(false);
-    ui->SetValueSpinBox->setStyleSheet("background-color: mistyrose");
     ui->SetValueSpinBox->setReadOnly(true);
 
     ChangeMode(QString("Play Sudoku"));
@@ -28,11 +32,21 @@ QSudokuSolver::QSudokuSolver(QWidget *parent) :
     QObject::connect(&m_Solver, &Solver::SolveSucceed, this, &QSudokuSolver::SolveSucceedProc);
     QObject::connect(&m_Solver, &Solver::InvalidSudokuPuzzle, this, &QSudokuSolver::InvalidSudokuPuzzleProc);
     QObject::connect(&m_Puzzles, &SudokuPuzzles::initComplete, this, &QSudokuSolver::PuzzlesInitCompleteProc);
+    QObject::connect(ui->SetValueSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onSpinBoxValueChanged(int)), Qt::QueuedConnection);
+
+    m_stepup_timer = new QTimer(this);
+    m_stepdown_timer = new QTimer(this);
+    m_stepup_timer->setSingleShot(true);
+    m_stepdown_timer->setSingleShot(true);
+    connect(m_stepup_timer, SIGNAL(timeout()), this, SLOT(StepUpTimeOut()));
+    connect(m_stepdown_timer, SIGNAL(timeout()), this, SLOT(StepDownTimeOut()));
 }
 
 QSudokuSolver::~QSudokuSolver()
 {
     delete ui;
+    delete m_stepup_timer;
+    delete m_stepdown_timer;
 }
 
 void QSudokuSolver::ChangeMode(const QString &ModeString)
@@ -77,10 +91,10 @@ void QSudokuSolver::SolveSucceedProc(void)
     #ifdef DEBUG_LOGOUT_ON
                 qDebug() << "Puzzle"<<ui->PuzzleComboBox->currentIndex()<<"Complete";
     #endif
-                QMessageBox::information(this, tr("QKeyMapper"), tr("<html><head/><body><p align=\"center\"><font color='green'>Sudoku Puzzle Complete.</font></p></body></html>"));
+                QMessageBox::information(this, tr("QSudoku"), tr("<html><head/><body><p align=\"center\"><font color='green'>Sudoku Puzzle Complete.</font></p></body></html>"));
             }
             else{
-                QMessageBox::warning(this, tr("QKeyMapper"), tr("<html><head/><body><font color='red'><p align=\"center\">Incorrect sudoku solution.</p><p align=\"center\">Try again please!</p></font></body></html>"));
+                QMessageBox::warning(this, tr("QSudoku"), tr("<html><head/><body><font color='red'><p align=\"center\">Incorrect sudoku solution.</p><p align=\"center\">Try again please!</p></font></body></html>"));
             }
         }
     }
@@ -91,11 +105,11 @@ void QSudokuSolver::InvalidSudokuPuzzleProc(void)
     m_SolvedStatus = false;
 
     if (SUDOKUMODE_SOLVE == m_SudokuMode){
-        QMessageBox::warning(this, tr("QKeyMapper"), tr("<html><head/><body><font color='red'><p align=\"center\">Input invalid Sudoku Puzzle.</p><p align=\"center\">Reinput it please!</p></font></body></html>"));
+        QMessageBox::warning(this, tr("QSudoku"), tr("<html><head/><body><font color='red'><p align=\"center\">Input invalid Sudoku Puzzle.</p><p align=\"center\">Reinput it please!</p></font></body></html>"));
     }
     else{
         if (PUZZLE_CUSTOM == ui->PuzzleComboBox->currentIndex()){
-            QMessageBox::warning(this, tr("QKeyMapper"), tr("<html><head/><body><font color='red'><p align=\"center\">Input invalid Sudoku Puzzle.</p><p align=\"center\">Reinput it please!</p></font></body></html>"));
+            QMessageBox::warning(this, tr("QSudoku"), tr("<html><head/><body><font color='red'><p align=\"center\">Input invalid Sudoku Puzzle.</p><p align=\"center\">Reinput it please!</p></font></body></html>"));
         }
         else{
             qDebug() << "PlayCustomMode invalid puzzle index:" << ui->PuzzleComboBox->currentIndex();
@@ -127,9 +141,24 @@ void QSudokuSolver::boxReleased(QString boxname)
     m_CurrentBoxName.clear();
 }
 
+void QSudokuSolver::onSpinBoxValueChanged(int value)
+{
+    Q_UNUSED(value);
+    ui->SetValueSpinBox->findChild<QLineEdit*>()->deselect();
+}
+
+void QSudokuSolver::StepUpTimeOut()
+{
+
+}
+
+void QSudokuSolver::StepDownTimeOut()
+{
+
+}
+
 bool QSudokuSolver::event(QEvent *event)
 {
-    qDebug() << "EventType:" << event->type();
     if (event->type() == QEvent::Gesture)
         return gestureEvent(static_cast<QGestureEvent*>(event));
     return QWidget::event(event);
@@ -325,14 +354,14 @@ void QSudokuSolver::on_CheckButton_clicked()
         if (ui->PuzzleComboBox->currentIndex() != PUZZLE_CUSTOM){
             bool result = CheckPuzzleInput();
             if (false == result){
-                QMessageBox::warning(this, tr("QKeyMapper"), tr("<html><head/><body><font color='red'><p align=\"center\">Incomplete Sudoku Puzzle.</p><p align=\"center\">Continue to complete it please!</p></font></body></html>"));
+                QMessageBox::warning(this, tr("QSudoku"), tr("<html><head/><body><font color='red'><p align=\"center\">Incomplete Sudoku Puzzle.</p><p align=\"center\">Continue to complete it please!</p></font></body></html>"));
             }
         }
         else{
             if (true == m_CustomPuzzleMaked){
                 bool result = CheckPuzzleInput();
                 if (false == result){
-                    QMessageBox::warning(this, tr("QKeyMapper"), tr("<html><head/><body><font color='red'><p align=\"center\">Incomplete Sudoku Puzzle.</p><p align=\"center\">Continue to complete it please!</p></font></body></html>"));
+                    QMessageBox::warning(this, tr("QSudoku"), tr("<html><head/><body><font color='red'><p align=\"center\">Incomplete Sudoku Puzzle.</p><p align=\"center\">Continue to complete it please!</p></font></body></html>"));
                 }
             }
             else{
@@ -569,17 +598,27 @@ void QSudokuSolver::pinchTriggered(QPinchGesture *gesture)
         if (changeFlags & QPinchGesture::ScaleFactorChanged)
         {
             qreal value = gesture->property("scaleFactor").toReal();
-            if(fabs(value-1.0)>0.05)
+            if(fabs(value-1.0)>0.002)
             {
-                if(value>1.0)
+                if(value > 1.0)
                 {
-                    qDebug() << "Step Up";
-                    ui->SetValueSpinBox->stepUp();
+                    if ((false == m_stepup_timer->isActive())
+                            && (false == m_stepdown_timer->isActive())){
+                        if (ui->SetValueSpinBox->value() < ui->SetValueSpinBox->maximum()){
+                            m_stepup_timer->start(GESTURE_TIMEOUT);
+                            ui->SetValueSpinBox->stepUp();
+                        }
+                    }
                 }
-                else
+                else if(value < 1.0)
                 {
-                    qDebug() << "Step Down";
-                    ui->SetValueSpinBox->stepDown();
+                    if ((false == m_stepup_timer->isActive())
+                            && (false == m_stepdown_timer->isActive())){
+                        if (ui->SetValueSpinBox->value() > ui->SetValueSpinBox->minimum()){
+                            m_stepdown_timer->start(GESTURE_TIMEOUT);
+                            ui->SetValueSpinBox->stepDown();
+                        }
+                    }
                 }
             }
         }
