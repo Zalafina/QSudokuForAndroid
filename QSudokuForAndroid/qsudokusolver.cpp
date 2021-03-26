@@ -25,7 +25,9 @@ QSudokuSolver::QSudokuSolver(QWidget *parent) :
     ui->ClearButton->setStyleSheet("color: red");
 	ui->SetValueSpinBox->setStyleSheet("background-color: mistyrose");
     ui->SetValueSpinBox->setVisible(false);
-    ui->SetValueSpinBox->setReadOnly(true);
+    QPalette palette;
+    palette.setColor(QPalette::Text, QColor("royalblue"));
+    ui->SetValueSpinBox->setPalette(palette);
 
     ChangeMode(QString("Play Sudoku"));
 
@@ -131,13 +133,18 @@ void QSudokuSolver::PuzzlesInitCompleteProc(void)
 
 void QSudokuSolver::boxPressed(QString boxname)
 {
+#ifdef DEBUG_LOGOUT_ON
     qDebug() << "boxPressed:" << boxname;
+#endif
     m_CurrentBoxName = boxname;
 }
 
 void QSudokuSolver::boxReleased(QString boxname)
 {
+#ifdef DEBUG_LOGOUT_ON
     qDebug() << "boxReleased:" << boxname;
+#endif
+    Q_UNUSED(boxname);
     m_CurrentBoxName.clear();
 }
 
@@ -334,7 +341,6 @@ void QSudokuSolver::on_PuzzleComboBox_currentIndexChanged(int index)
                     box->setText(QString(number));
                     //box->setFocusPolicy(Qt::NoFocus);
                     box->setpuzzlenumber();
-                    box->setEnabled(false);
                 }
             }
             else{
@@ -604,7 +610,11 @@ void QSudokuSolver::pinchTriggered(QPinchGesture *gesture)
                 {
                     if ((false == m_stepup_timer->isActive())
                             && (false == m_stepdown_timer->isActive())){
-                        if (ui->SetValueSpinBox->value() < ui->SetValueSpinBox->maximum()){
+                        if (true == ui->SetValueSpinBox->text().isEmpty()){
+                            m_stepup_timer->start(GESTURE_TIMEOUT);
+                            ui->SetValueSpinBox->setValue(ui->SetValueSpinBox->minimum());
+                        }
+                        else if (ui->SetValueSpinBox->value() < ui->SetValueSpinBox->maximum()){
                             m_stepup_timer->start(GESTURE_TIMEOUT);
                             ui->SetValueSpinBox->stepUp();
                         }
@@ -617,6 +627,10 @@ void QSudokuSolver::pinchTriggered(QPinchGesture *gesture)
                         if (ui->SetValueSpinBox->value() > ui->SetValueSpinBox->minimum()){
                             m_stepdown_timer->start(GESTURE_TIMEOUT);
                             ui->SetValueSpinBox->stepDown();
+                        }
+                        else if (ui->SetValueSpinBox->value() == ui->SetValueSpinBox->minimum()){
+                            m_stepdown_timer->start(GESTURE_TIMEOUT);
+                            ui->SetValueSpinBox->clear();
                         }
                     }
                 }

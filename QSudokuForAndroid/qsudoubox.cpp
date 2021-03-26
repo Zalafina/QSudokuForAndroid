@@ -32,18 +32,30 @@ void QSudouBox::Pressed()
     this->setFrameShadow(QFrame::Sunken);
     this->setStyleSheet("background-color: lightsteelblue");
 
-    QRect setvalueGeometry = this->geometry();
-    int y = setvalueGeometry.y() - parent_ptr->GetUI()->SetValueSpinBox->height();
+    QSpinBox *valuespinbox = parent_ptr->GetUI()->SetValueSpinBox;
+    if (false == this->text().isEmpty()){
+        valuespinbox->setValue(this->text().toInt());
+    }
+    else{
+        valuespinbox->clear();
+    }
+
+    QRect currentBoxGeometry = this->geometry();
+    QRect setvalueGeometry = valuespinbox->geometry();
+    int y = currentBoxGeometry.y() - valuespinbox->height();
     setvalueGeometry.setY(y);
     setvalueGeometry.setX(this->x());
-    setvalueGeometry.setHeight(parent_ptr->GetUI()->SetValueSpinBox->height());
-    setvalueGeometry.setHeight(parent_ptr->GetUI()->SetValueSpinBox->width());
-    parent_ptr->GetUI()->SetValueSpinBox->setGeometry(setvalueGeometry);
-    parent_ptr->GetUI()->SetValueSpinBox->setVisible(true);
+    setvalueGeometry.setHeight(valuespinbox->height());
+    setvalueGeometry.setWidth(valuespinbox->width());
+    valuespinbox->setGeometry(setvalueGeometry);
+    valuespinbox->setVisible(true);
 }
 
 void QSudouBox::Released()
 {
+    QSpinBox *valuespinbox = parent_ptr->GetUI()->SetValueSpinBox;
+    this->setText(valuespinbox->text());
+
     if (QSudokuSolver::SUDOKUMODE_PLAY == parent_ptr->m_SudokuMode){
         if (true == this->text().isEmpty()){
             this->setFrameShape(QFrame::StyledPanel);
@@ -73,15 +85,16 @@ void QSudouBox::Released()
             this->setFrameShape(QFrame::StyledPanel);
             this->setFrameShadow(QFrame::Plain);
             this->setStyleSheet("background-color:");
-        this->m_BoxType = BOXTYPE_BLANK;
+            this->m_BoxType = BOXTYPE_BLANK;
+        }
+        else{
+            this->setStyleSheet("background-color: orchid");
+            this->m_BoxType = BOXTYPE_PUZZLE;
+        }
     }
-    else{
-        this->setStyleSheet("background-color: orchid");
-        this->m_BoxType = BOXTYPE_PUZZLE;
-    }
-}
 
-    parent_ptr->GetUI()->SetValueSpinBox->setVisible(false);
+    valuespinbox->setVisible(false);
+    valuespinbox->clear();
 }
 
 void QSudouBox::mousePressEvent(QMouseEvent *ev)
