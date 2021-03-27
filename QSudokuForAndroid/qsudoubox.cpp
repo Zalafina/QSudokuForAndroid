@@ -7,6 +7,7 @@ QSudouBox::QSudouBox(QWidget *parent) : QLabel(parent)
   , parent_ptr(dynamic_cast<QSudokuSolver*>(parent))
 {
     this->setFocusPolicy(Qt::NoFocus);
+    setNormalTextColor();
 }
 
 void QSudouBox::clearall()
@@ -16,6 +17,7 @@ void QSudouBox::clearall()
     this->setFrameShadow(QFrame::Plain);
     this->setStyleSheet("background-color:");
     this->m_BoxType = BOXTYPE_BLANK;
+    setNormalTextColor();
 }
 
 void QSudouBox::setpuzzlenumber(void)
@@ -24,6 +26,7 @@ void QSudouBox::setpuzzlenumber(void)
     this->setFrameShadow(QFrame::Sunken);
     this->setStyleSheet("background-color: orchid");
     this->m_BoxType = BOXTYPE_PUZZLE;
+    setPuzzleTextColor();
 }
 
 void QSudouBox::Pressed()
@@ -54,7 +57,9 @@ void QSudouBox::Pressed()
 void QSudouBox::Released()
 {
     QSpinBox *valuespinbox = parent_ptr->GetUI()->SetValueSpinBox;
-    this->setText(valuespinbox->text());
+    if (true == valuespinbox->isVisible()){
+        this->setText(valuespinbox->text());
+    }
 
     if (QSudokuSolver::SUDOKUMODE_PLAY == parent_ptr->m_SudokuMode){
         if (true == this->text().isEmpty()){
@@ -97,11 +102,43 @@ void QSudouBox::Released()
     valuespinbox->clear();
 }
 
+void QSudouBox::setNormalTextColor()
+{
+    QPalette palette = this->palette();
+    palette.setColor(QPalette::WindowText, QColor("royalblue"));
+    this->setPalette(palette);
+}
+
+void QSudouBox::setPuzzleTextColor()
+{
+    QPalette palette = this->palette();
+    palette.setColor(QPalette::WindowText, QColor("slategray"));
+    this->setPalette(palette);
+}
+
 void QSudouBox::mousePressEvent(QMouseEvent *ev)
 {
     Q_UNUSED(ev);
+    bool pressable = false;
+    if ((QSudokuSolver::SUDOKUMODE_PLAY == parent_ptr->m_SudokuMode)
+            && (QSudokuSolver::PUZZLE_CUSTOM == parent_ptr->GetUI()->PuzzleComboBox->currentIndex())
+            && (false == parent_ptr->m_CustomPuzzleMaked)){
+        pressable = true;
+    }
+    else if ((QSudokuSolver::SUDOKUMODE_SOLVE == parent_ptr->m_SudokuMode)
+             && (QSudokuSolver::PUZZLE_CUSTOM == parent_ptr->GetUI()->PuzzleComboBox->currentIndex())
+             && (false == parent_ptr->m_SolvedStatus)){
+        pressable = true;
+    }
+    else if ((QSudokuSolver::PUZZLE_CUSTOM != parent_ptr->GetUI()->PuzzleComboBox->currentIndex())
+             && (this->m_BoxType != BOXTYPE_PUZZLE)){
+        if (QSudokuSolver::SUDOKUMODE_PLAY == parent_ptr->m_SudokuMode){
+            pressable = true;
+        }
+    }
 
-    if (this->m_BoxType != BOXTYPE_PUZZLE){
+
+    if (true == pressable){
     #ifdef DEBUG_LOGOUT_ON
         //qDebug() << "mousePressEvent:" << this->objectName();
     #endif
@@ -113,8 +150,25 @@ void QSudouBox::mousePressEvent(QMouseEvent *ev)
 void QSudouBox::mouseReleaseEvent(QMouseEvent *ev)
 {
     Q_UNUSED(ev);
+    bool releaseable = false;
+    if ((QSudokuSolver::SUDOKUMODE_PLAY == parent_ptr->m_SudokuMode)
+            && (QSudokuSolver::PUZZLE_CUSTOM == parent_ptr->GetUI()->PuzzleComboBox->currentIndex())
+            && (false == parent_ptr->m_CustomPuzzleMaked)){
+        releaseable = true;
+    }
+    else if ((QSudokuSolver::SUDOKUMODE_SOLVE == parent_ptr->m_SudokuMode)
+             && (QSudokuSolver::PUZZLE_CUSTOM == parent_ptr->GetUI()->PuzzleComboBox->currentIndex())
+             && (false == parent_ptr->m_SolvedStatus)){
+        releaseable = true;
+    }
+    else if ((QSudokuSolver::PUZZLE_CUSTOM != parent_ptr->GetUI()->PuzzleComboBox->currentIndex())
+             && (this->m_BoxType != BOXTYPE_PUZZLE)){
+        if (QSudokuSolver::SUDOKUMODE_PLAY == parent_ptr->m_SudokuMode){
+            releaseable = true;
+        }
+    }
 
-    if (this->m_BoxType != BOXTYPE_PUZZLE){
+    if (true == releaseable){
     #ifdef DEBUG_LOGOUT_ON
         //qDebug() << "mouseReleaseEvent:" << this->objectName();
     #endif

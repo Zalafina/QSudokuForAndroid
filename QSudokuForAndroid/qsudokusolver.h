@@ -81,14 +81,16 @@ private:
     bool gestureEvent(QGestureEvent *event);
     void pinchTriggered(QPinchGesture *gesture);
 
+    void setRandomIndex(int max);
+
 private:
     Ui::QSudokuSolver *ui;
     Solver m_Solver;
-    bool m_SolvedStatus;
     SudokuPuzzles m_Puzzles;
 
 public:
     bool m_CustomPuzzleMaked;
+    bool m_SolvedStatus;
     int m_SudokuMode;
     QString m_CurrentBoxName;
     QTimer *m_stepup_timer;

@@ -27,6 +27,9 @@ public:
     void Pressed(void);
     void Released(void);
 
+    void setNormalTextColor(void);
+    void setPuzzleTextColor(void);
+
 protected:
     void mousePressEvent(QMouseEvent *ev);
     void mouseReleaseEvent(QMouseEvent *ev);

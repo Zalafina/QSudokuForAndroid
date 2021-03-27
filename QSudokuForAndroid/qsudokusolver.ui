@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>QSudokuSolver</class>
  <widget class="QWidget" name="QSudokuSolver">
@@ -29,7 +29,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>QSudokuSolver</string>
+   <string>QSudoku</string>
   </property>
   <widget class="QSudouBox" name="BoxR1C1">
    <property name="geometry">

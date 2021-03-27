@@ -1,5 +1,6 @@
 ﻿#include <QDebug>
 #include <QLineEdit>
+#include <QRandomGenerator>
 #include <string.h>
 #include "qsudokusolver.h"
 #include "ui_qsudokusolver.h"
@@ -10,9 +11,9 @@ QSudokuSolver::QSudokuSolver(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::QSudokuSolver),
     m_Solver(this),
-    m_SolvedStatus(false),
     m_Puzzles(this),
     m_CustomPuzzleMaked(false),
+    m_SolvedStatus(false),
     m_SudokuMode(SUDOKUMODE_PLAY),
     m_stepup_timer(Q_NULLPTR),
     m_stepdown_timer(Q_NULLPTR)
@@ -25,7 +26,7 @@ QSudokuSolver::QSudokuSolver(QWidget *parent) :
     ui->ClearButton->setStyleSheet("color: red");
 	ui->SetValueSpinBox->setStyleSheet("background-color: mistyrose");
     ui->SetValueSpinBox->setVisible(false);
-    QPalette palette;
+    QPalette palette = ui->SetValueSpinBox->palette();
     palette.setColor(QPalette::Text, QColor("royalblue"));
     ui->SetValueSpinBox->setPalette(palette);
 
@@ -129,6 +130,8 @@ void QSudokuSolver::PuzzlesInitCompleteProc(void)
         QString combobox_String = QString("Puzzle ") + puzzle_number;
         ui->PuzzleComboBox->addItem(combobox_String);
     }
+
+    setRandomIndex(puzzletablesize);
 }
 
 void QSudokuSolver::boxPressed(QString boxname)
@@ -341,6 +344,7 @@ void QSudokuSolver::on_PuzzleComboBox_currentIndexChanged(int index)
                     box->setText(QString(number));
                     //box->setFocusPolicy(Qt::NoFocus);
                     box->setpuzzlenumber();
+                    box->setEnabled(false);
                 }
             }
             else{
@@ -639,7 +643,9 @@ void QSudokuSolver::pinchTriggered(QPinchGesture *gesture)
     }
 
     if (gesture->state() == Qt::GestureFinished) {
+#ifdef DEBUG_LOGOUT_ON
         qDebug() << "Gesture Finished";
+#endif
 
         if (false == m_CurrentBoxName.isEmpty()){
             QSudouBox *box = this->findChild<QSudouBox *>(m_CurrentBoxName);
@@ -648,6 +654,15 @@ void QSudokuSolver::pinchTriggered(QPinchGesture *gesture)
             }
         }
     }
+}
+
+void QSudokuSolver::setRandomIndex(int max)
+{
+    quint32 randomindex = QRandomGenerator::global()->bounded(1, max+1);
+#ifdef DEBUG_LOGOUT_ON
+    qDebug() << "setRandomIndex:" <<"max =" << max << ": randomindex =" << randomindex;
+#endif
+    ui->PuzzleComboBox->setCurrentIndex(randomindex);
 }
 
 void QSudokuSolver::on_MakeButton_clicked()
