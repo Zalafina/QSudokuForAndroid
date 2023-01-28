@@ -1,4 +1,4 @@
-﻿#ifndef QSUDOKUSOLVER_H
+#ifndef QSUDOKUSOLVER_H
 #define QSUDOKUSOLVER_H
 
 #include <QWidget>
@@ -57,13 +57,13 @@ private slots:
 
     void on_ClearButton_clicked();
 
-    void on_ModeComboBox_currentIndexChanged(const QString &ComboBoxString);
-
     void on_PuzzleComboBox_currentIndexChanged(int index);
 
     void on_CheckButton_clicked();
 
     void on_MakeButton_clicked();
+
+    void on_ModeComboBox_currentTextChanged(const QString &arg1);
 
 private:
     void CheckButtonEnable(void);

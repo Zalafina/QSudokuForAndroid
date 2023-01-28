@@ -1,4 +1,4 @@
-﻿#include <QDebug>
+#include <QDebug>
 #include <QLineEdit>
 #include <QRandomGenerator>
 #include <string.h>
@@ -236,24 +236,6 @@ void QSudokuSolver::on_ClearButton_clicked()
         else{
             ui->PuzzleComboBox->setCurrentIndex(PUZZLE_CUSTOM);
         }
-    }
-}
-
-void QSudokuSolver::on_ModeComboBox_currentIndexChanged(const QString &ComboBoxString)
-{
-    if (ComboBoxString == QString("Play Sudoku")){
-#ifdef DEBUG_LOGOUT_ON
-        qDebug() << "Mode Changed:" << ComboBoxString;
-#endif
-
-        ChangeMode(ComboBoxString);
-    }
-    else if (ComboBoxString == QString("Solve Sudoku")){
-#ifdef DEBUG_LOGOUT_ON
-        qDebug() << "Mode Changed:" << ComboBoxString;
-#endif
-
-        ChangeMode(ComboBoxString);
     }
 }
 
@@ -668,4 +650,23 @@ void QSudokuSolver::setRandomIndex(int max)
 void QSudokuSolver::on_MakeButton_clicked()
 {
     on_SolveButton_clicked();
+}
+
+void QSudokuSolver::on_ModeComboBox_currentTextChanged(const QString &arg1)
+{
+    if (arg1 == QString("Play Sudoku")){
+#ifdef DEBUG_LOGOUT_ON
+        qDebug() << "Mode Changed:" << arg1;
+#endif
+
+        ChangeMode(arg1);
+    }
+    else if (arg1 == QString("Solve Sudoku")){
+#ifdef DEBUG_LOGOUT_ON
+        qDebug() << "Mode Changed:" << arg1;
+#endif
+
+        ChangeMode(arg1);
+    }
+
 }
